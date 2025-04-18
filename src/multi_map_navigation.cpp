@@ -196,7 +196,7 @@ bool MultiMapNavigation::navigateAcrossMaps(const std::string& target_map,
         
         // Make sure the message gets published
         ros::Duration(0.5).sleep();
-        initial_pose_pub.publish(init_pose);
+        // initial_pose_pub.publish(init_pose);
         ros::Duration(0.5).sleep();
         
         ROS_INFO("Successfully switched to map '%s'", to_map.c_str());
