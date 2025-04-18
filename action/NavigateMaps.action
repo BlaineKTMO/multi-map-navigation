@@ -1,0 +1,11 @@
+# Goal
+string target_map
+geometry_msgs/PoseStamped target_pose
+---
+# Result
+bool success
+---
+# Feedback
+string current_map
+string status
+float32 percent_complete

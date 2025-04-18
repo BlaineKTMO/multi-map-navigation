@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- Map file parameter -->
+  <arg name="map_file" default="$(find multi_map_navigation)/maps/mapA.yaml"/>
+  <arg name="map_name" default="mapA"/>
+  <arg name="model" default="burger"/>
+  
+  <!-- Set map name parameter for tracking current map -->
+  <param name="current_map" value="$(arg map_name)"/>
+
+<!-- Launch TurtleBot3 Navigation with our map file -->
+  <include file="$(find turtlebot3_gazebo)/launch/turtlebot3_demo.launch">
+  </include>
+  
+  <!-- Launch TurtleBot3 Navigation with our map file -->
+  <include file="$(find turtlebot3_navigation)/launch/turtlebot3_navigation.launch">
+    <arg name="map_file" value="$(arg map_file)"/>
+    <arg name="model" value="$(arg model)"/>
+  </include>
+  
+  <!-- Launch our multi-map navigation -->
+  <node pkg="multi_map_navigation" type="multi_map_navigation_node" name="multi_map_navigation_node" output="screen"/>
+  <node pkg="multi_map_navigation" type="shortest_path_service_node" name="shortest_path_service" output="screen"/>
+  <node pkg="multi_map_navigation" type="map_switcher_node" name="map_switcher" output="screen"/>
+  
+  <node pkg="multi_map_navigation" type="waypoint_navigator_node" name="waypoint_navigator" output="screen">
+    <param name="target_map" value="mapG"/>
+    <param name="x" value="-4.0"/>
+    <param name="y" value="-5.0"/>
+  </node>
+</launch>

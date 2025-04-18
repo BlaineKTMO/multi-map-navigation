@@ -9,13 +9,20 @@ project(multi_map_navigation)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   actionlib
+  actionlib_msgs
+  geometry_msgs
+  message_generation
   move_base_msgs
   roscpp
+  std_msgs
+  std_srvs
+  tf2
+  map_server
+  roslib
 )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
-
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -54,24 +61,28 @@ find_package(catkin REQUIRED COMPONENTS
 # )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
-#   Service2.srv
-# )
+add_service_files(
+  FILES
+  ShortestPath.srv
+  LoadMap.srv
+)
 
 ## Generate actions in the 'action' folder
-# add_action_files(
-#   FILES
-#   Action1.action
-#   Action2.action
-# )
+add_action_files(
+  FILES
+  NavigateMaps.action
+  SwitchMap.action
+)
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   move_base_msgs
-# )
+generate_messages(
+  DEPENDENCIES
+  actionlib_msgs
+  geometry_msgs
+  std_msgs
+)
+
+# Message generation is handled by the standard catkin mechanisms
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -102,11 +113,12 @@ find_package(catkin REQUIRED COMPONENTS
 ## LIBRARIES: libraries you create in this project that dependent projects also need
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
+find_package(SQLite3 REQUIRED)
+
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES multi_map_navigation
-#  CATKIN_DEPENDS actionlib move_base_msgs roscpp
-#  DEPENDS system_lib
+  INCLUDE_DIRS include
+  LIBRARIES ${PROJECT_NAME}
+  CATKIN_DEPENDS actionlib actionlib_msgs geometry_msgs move_base_msgs roscpp std_msgs std_srvs message_runtime roslib
 )
 
 ###########
@@ -116,7 +128,7 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -127,10 +139,16 @@ find_package(SQLite3 REQUIRED)
 set(SOURCE_FILES
   src/multi_map_navigation.cpp
   src/wormhole_database.cpp
+  src/map_graph.cpp
+  src/shortest_path_service.cpp
+  src/map_switcher.cpp
 )
 
 # Declare the library
 add_library(${PROJECT_NAME} ${SOURCE_FILES})
+
+# Make sure the messages are generated before the code
+add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 # Link the library with catkin and SQLite3
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
@@ -139,15 +157,40 @@ target_link_libraries(${PROJECT_NAME}
   SQLite::SQLite3
 )
 
-# Declare the executable
-add_executable(${PROJECT_NAME}_node src/multi_map_navigation_node.cpp)
+# Declare the executables
+add_executable(multi_map_navigation_node src/multi_map_navigation_node.cpp)
+add_executable(shortest_path_service_node src/shortest_path_service_node.cpp)
+add_executable(map_switcher_node src/map_switcher_node.cpp)
+add_executable(waypoint_navigator_node src/waypoint_navigator_node.cpp)
 
-# Link the executable with the library
-set_target_properties(${PROJECT_NAME}_node PROPERTIES OUTPUT_NAME ${PROJECT_NAME}_node)
-target_link_libraries(${PROJECT_NAME}_node
+# Link the executables with the library
+target_link_libraries(multi_map_navigation_node
   ${PROJECT_NAME}
   ${catkin_LIBRARIES}
 )
+
+target_link_libraries(shortest_path_service_node
+  ${PROJECT_NAME}
+  ${catkin_LIBRARIES}
+)
+
+target_link_libraries(map_switcher_node
+  ${PROJECT_NAME}
+  ${catkin_LIBRARIES}
+)
+
+target_link_libraries(waypoint_navigator_node
+  ${PROJECT_NAME}
+  ${catkin_LIBRARIES}
+)
+
+# Make sure messages are generated before the library is built
+add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+# Make sure messages are generated before the executables are built
+add_dependencies(multi_map_navigation_node ${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(shortest_path_service_node ${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(map_switcher_node ${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 #############
 ## Install ##

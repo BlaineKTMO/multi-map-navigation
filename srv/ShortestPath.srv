@@ -1,0 +1,6 @@
+# Request
+string start_map
+string target_map
+---
+# Response
+string[] path

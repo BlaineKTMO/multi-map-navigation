@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- Map file parameter -->
+  <arg name="map_file" default="$(find multi_map_navigation)/maps/mapA.yaml"/>
+  <arg name="map_name" default="mapA"/>
+  
+  <!-- Set map name parameter for tracking current map -->
+  <param name="current_map" value="$(arg map_name)"/>
+  
+  <!-- Launch map server with the specified map -->
+  <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" respawn="false">
+    <param name="frame_id" value="map"/>
+  </node>
+  
+  <!-- Launch AMCL for localization -->
+  <node pkg="amcl" type="amcl" name="amcl" output="screen">
+    <!-- AMCL parameters can be added here -->
+    <param name="odom_frame_id" value="odom"/>
+    <param name="base_frame_id" value="base_footprint"/>
+    <param name="global_frame_id" value="map"/>
+  </node>
+  
+  <!-- Launch move_base for navigation -->
+  <node pkg="move_base" type="move_base" respawn="false" name="move_base" output="screen">
+    <!-- move_base parameters can be added here -->
+    <param name="base_global_planner" value="navfn/NavfnROS"/>
+    <param name="base_local_planner" value="base_local_planner/TrajectoryPlannerROS"/>
+  </node>
+</launch>
