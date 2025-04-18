@@ -156,7 +156,7 @@ bool MultiMapNavigation::navigateAcrossMaps(const std::string& target_map,
         initial_pose.position.y = entry_point.y;
         
         // Create orientation from yaw
-        q.setRPY(0, 0, entry_point.yaw);
+        q.setRPY(0, 0, entry_point.yaw - 3.14159); // Adjust yaw for the new map
         initial_pose.orientation.x = q.x();
         initial_pose.orientation.y = q.y();
         initial_pose.orientation.z = q.z();
@@ -196,7 +196,7 @@ bool MultiMapNavigation::navigateAcrossMaps(const std::string& target_map,
         
         // Make sure the message gets published
         ros::Duration(0.5).sleep();
-        // initial_pose_pub.publish(init_pose);
+        initial_pose_pub.publish(init_pose);
         ros::Duration(0.5).sleep();
         
         ROS_INFO("Successfully switched to map '%s'", to_map.c_str());
