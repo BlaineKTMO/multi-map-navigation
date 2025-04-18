@@ -145,51 +145,51 @@ bool MapSwitcher::loadMap(const std::string& map_name) {
 }
 
 bool MapSwitcher::setInitialPose(double x, double y, double yaw) {
-    ROS_INFO("Setting initial pose in new map");
+    // ROS_INFO("Setting initial pose in new map");
     
-    // Create the pose message
-    geometry_msgs::PoseWithCovarianceStamped pose;
-    pose.header.stamp = ros::Time::now();
-    pose.header.frame_id = "map";
+    // // Create the pose message
+    // geometry_msgs::PoseWithCovarianceStamped pose;
+    // pose.header.stamp = ros::Time::now();
+    // pose.header.frame_id = "map";
     
-    // Use the provided pose coordinates directly - they're already in the map frame
-    // from the wormhole definition
-    pose.pose.pose.position.x = x;
-    pose.pose.pose.position.y = y;
-    pose.pose.pose.position.z = 0.0;
+    // // Use the provided pose coordinates directly - they're already in the map frame
+    // // from the wormhole definition
+    // pose.pose.pose.position.x = x;
+    // pose.pose.pose.position.y = y;
+    // pose.pose.pose.position.z = 0.0;
     
-    // Convert yaw to quaternion
-    tf2::Quaternion q;
-    q.setRPY(0, 0, yaw);
-    pose.pose.pose.orientation.x = q.x();
-    pose.pose.pose.orientation.y = q.y();
-    pose.pose.pose.orientation.z = q.z();
-    pose.pose.pose.orientation.w = q.w();
+    // // Convert yaw to quaternion
+    // tf2::Quaternion q;
+    // q.setRPY(0, 0, yaw);
+    // pose.pose.pose.orientation.x = q.x();
+    // pose.pose.pose.orientation.y = q.y();
+    // pose.pose.pose.orientation.z = q.z();
+    // pose.pose.pose.orientation.w = q.w();
     
-    ROS_INFO("Using provided pose coordinates at (%.2f, %.2f)", x, y);
+    // ROS_INFO("Using provided pose coordinates at (%.2f, %.2f)", x, y);
     
-    // Set a very small covariance to force AMCL to reset its belief
-    // This is critical for proper re-localization after map switching
-    for (int i = 0; i < 36; ++i) {
-        pose.pose.covariance[i] = 0.0;
-    }
-    pose.pose.covariance[0] = 0.01;  // x position variance (meters^2)
-    pose.pose.covariance[7] = 0.01;  // y position variance (meters^2)
-    pose.pose.covariance[35] = 0.01; // yaw angle variance (radians^2)
+    // // Set a very small covariance to force AMCL to reset its belief
+    // // This is critical for proper re-localization after map switching
+    // for (int i = 0; i < 36; ++i) {
+    //     pose.pose.covariance[i] = 0.0;
+    // }
+    // pose.pose.covariance[0] = 0.01;  // x position variance (meters^2)
+    // pose.pose.covariance[7] = 0.01;  // y position variance (meters^2)
+    // pose.pose.covariance[35] = 0.01; // yaw angle variance (radians^2)
     
-    // Ensure AMCL has started before sending initial pose
-    ros::Duration(1.0).sleep();
+    // // Ensure AMCL has started before sending initial pose
+    // ros::Duration(1.0).sleep();
     
-    // Publish the initial pose multiple times to make sure AMCL receives it
-    for (int i = 0; i < 5; ++i) {
-        initial_pose_pub_.publish(pose);
-        ros::Duration(0.2).sleep();
-    }
+    // // Publish the initial pose multiple times to make sure AMCL receives it
+    // for (int i = 0; i < 5; ++i) {
+    //     initial_pose_pub_.publish(pose);
+    //     ros::Duration(0.2).sleep();
+    // }
     
-    // Wait a bit longer to make sure AMCL has processed the pose
-    ros::Duration(0.5).sleep();
+    // // Wait a bit longer to make sure AMCL has processed the pose
+    // ros::Duration(0.5).sleep();
     
-    ROS_INFO("Initial pose has been set");
+    // ROS_INFO("Initial pose has been set");
     return true;
 }
 
