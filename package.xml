@@ -35,6 +35,8 @@
   <build_export_depend>std_msgs</build_export_depend>
   <build_export_depend>std_srvs</build_export_depend>
   <build_export_depend>tf2</build_export_depend>
+  <build_export_depend>tf2_ros</build_export_depend>
+  <build_export_depend>tf2_geometry_msgs</build_export_depend>
   <build_export_depend>roslib</build_export_depend>
   
   <exec_depend>actionlib</exec_depend>
@@ -46,6 +48,8 @@
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>std_srvs</exec_depend>
   <exec_depend>tf2</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+  <exec_depend>tf2_geometry_msgs</exec_depend>
   <exec_depend>libsqlite3-dev</exec_depend>
   <exec_depend>map_server</exec_depend>
   <exec_depend>roslib</exec_depend>
