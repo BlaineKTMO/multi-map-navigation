@@ -145,45 +145,28 @@ bool MapSwitcher::loadMap(const std::string& map_name) {
 }
 
 bool MapSwitcher::setInitialPose(double x, double y, double yaw) {
-    ROS_INFO("Getting current robot pose before setting initial pose in new map");
+    ROS_INFO("Setting initial pose in new map");
     
     // Create the pose message
     geometry_msgs::PoseWithCovarianceStamped pose;
     pose.header.stamp = ros::Time::now();
     pose.header.frame_id = "map";
     
-    // Try to get the current robot pose from TF
-    try {
-        // Look up the transform from map to base_footprint
-        geometry_msgs::TransformStamped transform;
-        transform = tf_buffer_.lookupTransform("map", "base_footprint", ros::Time(0), ros::Duration(1.0));
-        
-        // Use the current robot pose instead of the provided coordinates
-        pose.pose.pose.position.x = transform.transform.translation.x;
-        pose.pose.pose.position.y = transform.transform.translation.y;
-        pose.pose.pose.position.z = transform.transform.translation.z;
-        pose.pose.pose.orientation = transform.transform.rotation;
-        
-        ROS_INFO("Using current robot pose at (%.2f, %.2f)", 
-                pose.pose.pose.position.x, 
-                pose.pose.pose.position.y);
-    }
-    catch (tf2::TransformException &ex) {
-        ROS_WARN("Failed to get current robot pose: %s", ex.what());
-        ROS_WARN("Falling back to provided coordinates");
-        
-        // Fall back to the provided coordinates
-        pose.pose.pose.position.x = x;
-        pose.pose.pose.position.y = y;
-        pose.pose.pose.position.z = 0.0;
-        
-        tf2::Quaternion q;
-        q.setRPY(0, 0, yaw);
-        pose.pose.pose.orientation.x = q.x();
-        pose.pose.pose.orientation.y = q.y();
-        pose.pose.pose.orientation.z = q.z();
-        pose.pose.pose.orientation.w = q.w();
-    }
+    // Use the provided pose coordinates directly - they're already in the map frame
+    // from the wormhole definition
+    pose.pose.pose.position.x = x;
+    pose.pose.pose.position.y = y;
+    pose.pose.pose.position.z = 0.0;
+    
+    // Convert yaw to quaternion
+    tf2::Quaternion q;
+    q.setRPY(0, 0, yaw);
+    pose.pose.pose.orientation.x = q.x();
+    pose.pose.pose.orientation.y = q.y();
+    pose.pose.pose.orientation.z = q.z();
+    pose.pose.pose.orientation.w = q.w();
+    
+    ROS_INFO("Using provided pose coordinates at (%.2f, %.2f)", x, y);
     
     // Set a very small covariance to force AMCL to reset its belief
     // This is critical for proper re-localization after map switching
